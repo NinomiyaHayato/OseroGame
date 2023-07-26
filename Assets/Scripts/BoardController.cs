@@ -8,7 +8,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     [SerializeField] GridLayoutGroup _gridLayoutGroup;
 
     [SerializeField, Header("èc")] int _rows;
-    [SerializeField, Header("â°")] int _column;
+    [SerializeField, Header("â°")] int _columns;
 
     GameObject[,] _bords;
 
@@ -21,13 +21,13 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        _gridLayoutGroup.constraintCount = _column;
-        _bords = new GameObject[_rows, _column];
-        _pieceColor = new PieceColor[_rows, _column];
+        _gridLayoutGroup.constraintCount = _columns;
+        _bords = new GameObject[_rows, _columns];
+        _pieceColor = new PieceColor[_rows, _columns];
         var parent = _gridLayoutGroup.transform;
         for (int i = 0; i < _rows; i++)
         {
-            for (int j = 0; j < _column; j++)
+            for (int j = 0; j < _columns; j++)
             {
                 var floor = Instantiate(_cell, transform);
                 _bords[i, j] = floor;
@@ -63,6 +63,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 var piece = Instantiate(_piece, _bords[row, column].transform);
                 piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
                 _pieceColor[row, column] = PieceColor.White;
+                
             }
         }
     }
@@ -70,7 +71,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     {
         for(int i = 0; i < _rows; i++)
         {
-            for(int j = 0; j < _column; j++)
+            for(int j = 0; j < _columns; j++)
             {
                 if (piece == _bords[i, j])
                 {
@@ -84,6 +85,24 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         row = 0;column = 0;
         return false;
     }
+    public bool InstantiateCheck(int row,int column)
+    {
+        return false;
+    }
+    //public void EightDirectionsCheck(int row , int column)
+    //{
+    //    if (row >= 0 && column >= 0 && row < _rows && column < _columns)
+    //    {
+    //        var cellColor = _pieceColor[row, column];
+    //    }
+    //}
+    //private void ExpandCell(int row, int column)
+    //{
+    //    if (row >= 0 && column >= 0 && row < _rows && column < _columns && _pieceColor[row,column] != PieceColor.Empty)
+    //    {
+    //        EightDirectionsCheck(row, column);
+    //    }
+    //}
 }
 public enum PieceColor //ãÓÇÃenum
 {
