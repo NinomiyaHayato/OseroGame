@@ -17,6 +17,8 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
     [SerializeField, Header("駒")] GameObject _piece;
 
+    [SerializeField, Header("どちらのターンか判定")] bool _trunChange = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -56,22 +58,22 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         var target = eventData.pointerCurrentRaycast.gameObject;
-        if(ClickCheck(target,out var row,out var column))
+        if (ClickCheck(target, out var row, out var column))
         {
-            if(_pieceColor[row,column] == PieceColor.Empty)
+            if (_pieceColor[row, column] == PieceColor.Empty)
             {
-                var piece = Instantiate(_piece, _bords[row, column].transform);
+                var piece = Instantiate(_piece, _bords[row, column].transform); //マス目が空なら生成
                 piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
                 _pieceColor[row, column] = PieceColor.White;
-                
+
             }
         }
     }
-    public bool ClickCheck(GameObject piece, out int row,out int column)
+    public bool ClickCheck(GameObject piece, out int row, out int column)
     {
-        for(int i = 0; i < _rows; i++)
+        for (int i = 0; i < _rows; i++)
         {
-            for(int j = 0; j < _columns; j++)
+            for (int j = 0; j < _columns; j++)
             {
                 if (piece == _bords[i, j])
                 {
@@ -82,27 +84,20 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
             }
         }
-        row = 0;column = 0;
+        row = 0; column = 0;
         return false;
     }
-    public bool InstantiateCheck(int row,int column)
+    public bool InstantiateCheck(int row, int column)
     {
         return false;
     }
-    //public void EightDirectionsCheck(int row , int column)
-    //{
-    //    if (row >= 0 && column >= 0 && row < _rows && column < _columns)
-    //    {
-    //        var cellColor = _pieceColor[row, column];
-    //    }
-    //}
-    //private void ExpandCell(int row, int column)
-    //{
-    //    if (row >= 0 && column >= 0 && row < _rows && column < _columns && _pieceColor[row,column] != PieceColor.Empty)
-    //    {
-    //        EightDirectionsCheck(row, column);
-    //    }
-    //}
+    public void EightDirectionsCheck(int row, int column)
+    {
+        if (row >= 0 && column >= 0 && row < _rows && column < _columns)
+        {
+            
+        }
+    }
 }
 public enum PieceColor //駒のenum
 {

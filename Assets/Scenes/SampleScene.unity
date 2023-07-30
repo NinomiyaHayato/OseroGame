@@ -587,5 +587,5 @@ MonoBehaviour:
   _cell: {fileID: 6423444794017223819, guid: bf213f4acb46cfd43866d57204864ccb, type: 3}
   _gridLayoutGroup: {fileID: 1999734363}
   _rows: 8
-  _column: 8
+  _columns: 8
   _piece: {fileID: 6738940235498259808, guid: 9703f1c12a858d04398a4c4d90787090, type: 3}
