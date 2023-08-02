@@ -62,12 +62,23 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         var target = eventData.pointerCurrentRaycast.gameObject;
         if (ClickCheck(target, out var row, out var column))
         {
-            if (_pieceColor[row, column] == PieceColor.Empty && InstantiateCheck(row,column,PieceColor.White))
+            PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
+            if (_pieceColor[row, column] == PieceColor.Empty && InstantiateCheck(row, column, pieceColor))
             {
                 var piece = Instantiate(_piece, _bords[row, column].transform); //マス目が空なら生成
-                piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
-                _pieceColor[row, column] = PieceColor.White;
-
+                if (_trunChange)
+                {
+                    piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+                    _pieceColor[row, column] = PieceColor.White;
+                    FlipPieces(row, column, pieceColor);
+                }
+                else
+                {
+                    piece.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                    _pieceColor[row, column] = PieceColor.Black;
+                    FlipPieces(row, column, pieceColor);
+                }
+                _trunChange = !_trunChange;
             }
         }
     }
@@ -127,7 +138,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 _eightCheckCount++;
                 return CheckInDirection(newRow, newColumn, dx, dy, colorCheck);
             }
-            if(_pieceColor[newRow,newColumn] == colorCheck && _eightCheckCount != 0)
+            if (_pieceColor[newRow, newColumn] == colorCheck && _eightCheckCount != 0)
             {
                 return true;
             }
@@ -139,6 +150,35 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
         return false;
     }
+    public void FlipPieces(int row, int column, PieceColor colorCheck)
+    {
+        int[] dx = { 1, 1, 1, 0, 0, -1, -1, -1 };
+        int[] dy = { 1, 0, -1, 1, -1, 1, 0, -1 };
+
+        // すべての八方向に対してチェック
+        for (int i = 0; i < dx.Length; i++)
+        {
+            int count = _eightCheckCount;
+            if (CheckInDirection(row, column, dx[i], dy[i], colorCheck))
+            {
+                int newRow = row + dx[i];
+                int newColumn = column + dy[i];
+
+                // 裏返す処理
+                for (int j = 0; j < count; j++)
+                {
+                    if (_bords[newRow, newColumn] != null && _bords[newRow, newColumn].transform.childCount > 0)
+                    {
+                        _pieceColor[newRow, newColumn] = colorCheck;
+                        _bords[newRow, newColumn].transform.GetChild(0).localRotation = _trunChange ? Quaternion.Euler(-90f, 0f, 0f) : Quaternion.Euler(90f, 0f, 0f);
+                    }
+                    newRow += dx[i];
+                    newColumn += dy[i];
+                }
+            }
+        }
+    }
+
 }
 public enum PieceColor //駒のenum
 {
