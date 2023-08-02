@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class BoardController : MonoBehaviour, IPointerClickHandler
 {
@@ -21,9 +22,12 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
     int _eightCheckCount = 0;
 
+    GameManager _gameManager;
+
     // Start is called before the first frame update
     void Start()
     {
+        _gameManager = GameObject.FindAnyObjectByType<GameManager>();
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         _gridLayoutGroup.constraintCount = _columns;
         _bords = new GameObject[_rows, _columns];
@@ -50,6 +54,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 }
             }
         }
+        CountReturn();
     }
 
     // Update is called once per frame
@@ -81,6 +86,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 _trunChange = !_trunChange;
             }
         }
+        CountReturn();
     }
     public bool ClickCheck(GameObject piece, out int row, out int column)
     {
@@ -170,13 +176,35 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                     if (_bords[newRow, newColumn] != null && _bords[newRow, newColumn].transform.childCount > 0)
                     {
                         _pieceColor[newRow, newColumn] = colorCheck;
-                        _bords[newRow, newColumn].transform.GetChild(0).localRotation = _trunChange ? Quaternion.Euler(-90f, 0f, 0f) : Quaternion.Euler(90f, 0f, 0f);
+                        Transform pieceTransform = _bords[newRow, newColumn].transform.GetChild(0);
+                        float targetAngle = _trunChange ? -90f : 90f;
+                        pieceTransform.DORotate(new Vector3(targetAngle, 0f, 0f), 0.3f);
                     }
                     newRow += dx[i];
                     newColumn += dy[i];
                 }
             }
         }
+    }
+    public void CountReturn()
+    {
+        int whiteCount = 0;
+        int blackCount = 0;
+        for(int i = 0; i < _rows; i++)
+        {
+            for(int j = 0; j < _columns; j++)
+            {
+                if(_pieceColor[i,j] == PieceColor.White)
+                {
+                    whiteCount++;
+                }
+                else if(_pieceColor[i,j] == PieceColor.Black)
+                {
+                    blackCount++;
+                }
+            }
+        }
+        _gameManager.Situation(whiteCount,blackCount);
     }
 
 }
