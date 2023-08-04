@@ -18,12 +18,16 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
     [SerializeField, Header("駒")] GameObject _piece;
 
-    [SerializeField, Header("どちらのターンか判定")] bool _trunChange = true;
+    [SerializeField, Header("どちらのターンか判定")]private bool _trunChange = true;
 
     int _eightCheckCount = 0;
 
     GameManager _gameManager;
 
+    public bool PlayerTurn
+    {
+        get { return _trunChange; }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -56,35 +60,12 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         CountReturn();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     public void OnPointerClick(PointerEventData eventData)
     {
         var target = eventData.pointerCurrentRaycast.gameObject;
         if (ClickCheck(target, out var row, out var column))
         {
-            PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
-            if (_pieceColor[row, column] == PieceColor.Empty && InstantiateCheck(row, column, pieceColor))
-            {
-                var piece = Instantiate(_piece, _bords[row, column].transform); //マス目が空なら生成
-                if (_trunChange)
-                {
-                    piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
-                    _pieceColor[row, column] = PieceColor.White;
-                    FlipPieces(row, column, pieceColor);
-                }
-                else
-                {
-                    piece.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                    _pieceColor[row, column] = PieceColor.Black;
-                    FlipPieces(row, column, pieceColor);
-                }
-                _trunChange = !_trunChange;
-            }
+            InstancePiece(row, column);
         }
         CountReturn();
     }
@@ -206,7 +187,39 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         _gameManager.Situation(whiteCount,blackCount);
     }
-
+    public void InstancePiece(int row, int column)
+    {
+        PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
+        if (_pieceColor[row, column] == PieceColor.Empty && InstantiateCheck(row, column, pieceColor))
+        {
+            var piece = Instantiate(_piece, _bords[row, column].transform); //マス目が空なら生成
+            if (_trunChange)
+            {
+                piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+                _pieceColor[row, column] = PieceColor.White;
+                FlipPieces(row, column, pieceColor);
+            }
+            else
+            {
+                piece.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                _pieceColor[row, column] = PieceColor.Black;
+                FlipPieces(row, column, pieceColor);
+            }
+            TurnChange();
+        }
+    }
+    public void TurnChange()
+    {
+        _trunChange = !_trunChange;
+        if(!_trunChange)
+        {
+            AIController aIController = GetComponent<AIController>();
+            if(aIController != null)
+            {
+                aIController.AITurn();
+            }
+        }
+    }
 }
 public enum PieceColor //駒のenum
 {
