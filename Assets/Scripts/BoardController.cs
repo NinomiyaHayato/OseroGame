@@ -1,15 +1,16 @@
+using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using DG.Tweening;
 
 public class BoardController : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField, Header("床")] GameObject _cell;
     [SerializeField] GridLayoutGroup _gridLayoutGroup;
 
-    [SerializeField, Header("縦")] int _rows;
-    [SerializeField, Header("横")] int _columns;
+    [SerializeField, Header("縦")] public int _rows;
+    [SerializeField, Header("横")] public int _columns;
 
     GameObject[,] _bords;
 
@@ -18,11 +19,15 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
     [SerializeField, Header("駒")] GameObject _piece;
 
-    [SerializeField, Header("どちらのターンか判定")]private bool _trunChange = true;
+    [SerializeField, Header("どちらのターンか判定")] private bool _trunChange = true;
 
-    int _eightCheckCount = 0;
+    public int _eightCheckCount = 0;
 
     GameManager _gameManager;
+
+    public int[] _dx = { 1, 1, 1, 0, 0, -1, -1, -1 }; //八方向チェック
+
+    public int[] _dy = { 1, 0, -1, 1, -1, 1, 0, -1 }; //八方向チェック
 
     public bool PlayerTurn
     {
@@ -89,15 +94,11 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     }
     public bool InstantiateCheck(int row, int column, PieceColor colorCheck)
     {
-        // 八方向のオフセットを定義
-        int[] dx = { 1, 1, 1, 0, 0, -1, -1, -1 };
-        int[] dy = { 1, 0, -1, 1, -1, 1, 0, -1 };
-
         // すべての八方向に対してチェック
-        for (int i = 0; i < dx.Length; i++)
+        for (int i = 0; i < _dx.Length; i++)
         {
             _eightCheckCount = 0;
-            if (CheckInDirection(row, column, dx[i], dy[i], colorCheck))
+            if (CheckInDirection(row, column, _dx[i], _dy[i], colorCheck))
             {
                 return true;
             }
@@ -110,7 +111,6 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         // 1つ隣のセルの座標を計算
         int newRow = row + dx;
         int newColumn = column + dy;
-
         // 1つ隣のセルが盤面内か確認
         if (newRow >= 0 && newRow < _rows && newColumn >= 0 && newColumn < _columns)
         {
@@ -139,30 +139,30 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     }
     public void FlipPieces(int row, int column, PieceColor colorCheck)
     {
-        int[] dx = { 1, 1, 1, 0, 0, -1, -1, -1 };
-        int[] dy = { 1, 0, -1, 1, -1, 1, 0, -1 };
-
         // すべての八方向に対してチェック
-        for (int i = 0; i < dx.Length; i++)
+        for (int i = 0; i < _dx.Length; i++)
         {
             int count = _eightCheckCount;
-            if (CheckInDirection(row, column, dx[i], dy[i], colorCheck))
+            if (CheckInDirection(row, column, _dx[i], _dy[i], colorCheck))
             {
-                int newRow = row + dx[i];
-                int newColumn = column + dy[i];
+                int newRow = row + _dx[i];
+                int newColumn = column + _dy[i];
 
                 // 裏返す処理
                 for (int j = 0; j < count; j++)
                 {
-                    if (_bords[newRow, newColumn] != null && _bords[newRow, newColumn].transform.childCount > 0)
+                    if (newRow >= 0 && newRow < _rows && newColumn >= 0 && newColumn < _columns)
                     {
-                        _pieceColor[newRow, newColumn] = colorCheck;
-                        Transform pieceTransform = _bords[newRow, newColumn].transform.GetChild(0);
-                        float targetAngle = _trunChange ? -90f : 90f;
-                        pieceTransform.DORotate(new Vector3(targetAngle, 0f, 0f), 0.3f);
+                        if (_bords[newRow, newColumn] != null && _bords[newRow, newColumn].transform.childCount > 0)
+                        {
+                            _pieceColor[newRow, newColumn] = colorCheck;
+                            Transform pieceTransform = _bords[newRow, newColumn].transform.GetChild(0);
+                            float targetAngle = _trunChange ? -90f : 90f;
+                            pieceTransform.DORotate(new Vector3(targetAngle, 0f, 0f), 0.3f);
+                        }
                     }
-                    newRow += dx[i];
-                    newColumn += dy[i];
+                    newRow += _dx[i];
+                    newColumn += _dy[i];
                 }
             }
         }
@@ -171,21 +171,21 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     {
         int whiteCount = 0;
         int blackCount = 0;
-        for(int i = 0; i < _rows; i++)
+        for (int i = 0; i < _rows; i++)
         {
-            for(int j = 0; j < _columns; j++)
+            for (int j = 0; j < _columns; j++)
             {
-                if(_pieceColor[i,j] == PieceColor.White)
+                if (_pieceColor[i, j] == PieceColor.White)
                 {
                     whiteCount++;
                 }
-                else if(_pieceColor[i,j] == PieceColor.Black)
+                else if (_pieceColor[i, j] == PieceColor.Black)
                 {
                     blackCount++;
                 }
             }
         }
-        _gameManager.Situation(whiteCount,blackCount);
+        _gameManager.Situation(whiteCount, blackCount);
     }
     public void InstancePiece(int row, int column)
     {
@@ -205,20 +205,25 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 _pieceColor[row, column] = PieceColor.Black;
                 FlipPieces(row, column, pieceColor);
             }
-            TurnChange();
+            StartCoroutine("TurnChanges");
         }
     }
     public void TurnChange()
     {
         _trunChange = !_trunChange;
-        if(!_trunChange)
+        if (!_trunChange)
         {
-            AIController aIController = GetComponent<AIController>();
-            if(aIController != null)
+            AIController aIController = FindObjectOfType<AIController>();
+            if (aIController != null)
             {
                 aIController.AITurn();
             }
         }
+    }
+    public IEnumerator TurnChanges()
+    {
+        yield return new WaitForSeconds(0.5f);
+        TurnChange();
     }
 }
 public enum PieceColor //駒のenum

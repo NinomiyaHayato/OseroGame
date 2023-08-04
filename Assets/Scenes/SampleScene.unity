@@ -711,6 +711,7 @@ GameObject:
   - component: {fileID: 1999734361}
   - component: {fileID: 1999734363}
   - component: {fileID: 1999734364}
+  - component: {fileID: 1999734365}
   m_Layer: 5
   m_Name: Osero
   m_TagString: Untagged
@@ -818,6 +819,21 @@ MonoBehaviour:
   _columns: 8
   _piece: {fileID: 6738940235498259808, guid: 9703f1c12a858d04398a4c4d90787090, type: 3}
   _trunChange: 1
+  _eightCheckCount: 0
+  _dx: 0100000001000000010000000000000000000000ffffffffffffffffffffffff
+  _dy: 0100000000000000ffffffff01000000ffffffff0100000000000000ffffffff
+--- !u!114 &1999734365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999734359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25797592a5efe6f4da37bc80f5fd5403, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2001203979
 GameObject:
   m_ObjectHideFlags: 0
