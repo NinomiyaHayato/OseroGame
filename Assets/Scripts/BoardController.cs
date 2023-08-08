@@ -208,9 +208,28 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             StartCoroutine("TurnChanges");
         }
     }
-    public void TurnChange()
+    private bool CanPlacePiece(PieceColor colorCheck) //‹î‚ð’u‚¯‚é‚©‚Ç‚¤‚©
     {
-        _trunChange = !_trunChange;
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _columns; j++)
+            {
+                if (_pieceColor[i, j] == PieceColor.Empty && InstantiateCheck(i, j, colorCheck))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void TurnChange() //AI‚ÆŽè”Ô‚ÌØ‚è‘Ö‚¦
+    {
+        PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
+        if(CanPlacePiece(pieceColor))
+        {
+            _trunChange = !_trunChange;
+        }
         if (!_trunChange)
         {
             AIController aIController = FindObjectOfType<AIController>();
