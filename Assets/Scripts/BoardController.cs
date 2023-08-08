@@ -72,7 +72,6 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         {
             InstancePiece(row, column);
         }
-        CountReturn();
     }
     public bool ClickCheck(GameObject piece, out int row, out int column)
     {
@@ -225,6 +224,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
     public void TurnChange() //AIÇ∆éËî‘ÇÃêÿÇËë÷Ç¶
     {
+        CountReturn();
         PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
         if(CanPlacePiece(pieceColor))
         {
@@ -236,6 +236,14 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             if (aIController != null)
             {
                 aIController.AITurn();
+            }
+        }
+        else if(!CanPlacePiece(pieceColor))
+        {
+            TrunSkipAnim trunSkipAnim = FindObjectOfType<TrunSkipAnim>();
+            if(trunSkipAnim != null)
+            {
+                trunSkipAnim.SkipAnim();
             }
         }
     }
