@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class BoardController : MonoBehaviour, IPointerClickHandler
 {
@@ -29,6 +30,8 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
     public int[] _dy = { 1, 0, -1, 1, -1, 1, 0, -1 }; //八方向チェック
 
+
+    public List<PieceColor[,]> pieceColorList = new List<PieceColor[,]>();
     public bool PlayerTurn
     {
         get { return _trunChange; }
@@ -221,10 +224,23 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         return false;
     }
+    private void BordMemory()
+    {
+        PieceColor[,] currentBoardState = new PieceColor[_rows, _columns];
 
+        for(int i = 0; i < _rows; i++)
+        {
+            for(int j = 0; j < _columns; j++)
+            {
+                currentBoardState[i, j] = _pieceColor[i, j];
+            }
+        }
+        pieceColorList.Add(currentBoardState);
+    }
     public void TurnChange() //AIと手番の切り替え
     {
         CountReturn();
+        BordMemory();
         PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
         if(CanPlacePiece(pieceColor))
         {

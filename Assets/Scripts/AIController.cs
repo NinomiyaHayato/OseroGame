@@ -11,14 +11,14 @@ public class AIController : MonoBehaviour
         int bestColumn = -1;
         int maxCount = 0;
         _boardController = FindObjectOfType<BoardController>();
-        for(int i = 0; i < _boardController._rows; i++)
+        for (int i = 0; i < _boardController._rows; i++)
         {
-            for(int j = 0; j < _boardController._columns; j++)
+            for (int j = 0; j < _boardController._columns; j++)
             {
-                if(_boardController._pieceColor[i,j] == PieceColor.Empty && _boardController.InstantiateCheck(i,j,PieceColor.Black))
+                if (_boardController._pieceColor[i, j] == PieceColor.Empty && _boardController.InstantiateCheck(i, j, PieceColor.Black))
                 {
-                    int pieceCount = CountPieces(j, j, PieceColor.Black);
-                    if(pieceCount > maxCount)
+                    int pieceCount = CountPieces(i, j, PieceColor.Black);
+                    if (pieceCount > maxCount)
                     {
                         bestRow = i;
                         bestColumn = j;
@@ -27,7 +27,7 @@ public class AIController : MonoBehaviour
                 }
             }
         }
-        if(bestRow != -1 && bestColumn != -1)
+        if (bestRow != -1 && bestColumn != -1)
         {
             _boardController.InstancePiece(bestRow, bestColumn);
         }
@@ -36,6 +36,7 @@ public class AIController : MonoBehaviour
             _boardController.StartCoroutine("TurnChanges");
         }
     }
+
     public int CountPieces(int row,int column,PieceColor pieceColor)
     {
         int pieceCount = 0;
