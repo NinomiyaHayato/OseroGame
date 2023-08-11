@@ -1,9 +1,9 @@
 using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class BoardController : MonoBehaviour, IPointerClickHandler
 {
@@ -169,7 +169,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             }
         }
     }
-    public void CountReturn()
+    public void CountReturn() //盤面の駒の状況
     {
         int whiteCount = 0;
         int blackCount = 0;
@@ -189,7 +189,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         _gameManager.Situation(whiteCount, blackCount);
     }
-    public void InstancePiece(int row, int column)
+    public void InstancePiece(int row, int column)　//駒の生成
     {
         PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
         if (_pieceColor[row, column] == PieceColor.Empty && InstantiateCheck(row, column, pieceColor))
@@ -224,42 +224,100 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         return false;
     }
-    private void BordMemory()
+    private void BordMemory() //盤面の保存
     {
         PieceColor[,] currentBoardState = new PieceColor[_rows, _columns];
 
-        for(int i = 0; i < _rows; i++)
+        for (int i = 0; i < _rows; i++)
         {
-            for(int j = 0; j < _columns; j++)
+            for (int j = 0; j < _columns; j++)
             {
                 currentBoardState[i, j] = _pieceColor[i, j];
             }
         }
         pieceColorList.Add(currentBoardState);
     }
-    public void TurnChange() //AIと手番の切り替え
+    public bool GameSet() //駒が置けるかどうかの確認
     {
-        CountReturn();
-        BordMemory();
-        PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
-        if(CanPlacePiece(pieceColor))
+        if (CanPlacePiece(PieceColor.White) || CanPlacePiece(PieceColor.Black))
         {
-            _trunChange = !_trunChange;
+            return false;
         }
-        if (!_trunChange)
+        return true;
+    }
+    public PieceColor GetWinner()　//どちらが勝ちか判定
+    {
+        int whiteCount = 0;
+        int blackCount = 0;
+
+        // 盤面上の駒の数を数える
+        for (int i = 0; i < _rows; i++)
         {
-            AIController aIController = FindObjectOfType<AIController>();
-            if (aIController != null)
+            for (int j = 0; j < _columns; j++)
             {
-                aIController.AITurn();
+                if (_pieceColor[i, j] == PieceColor.White)
+                {
+                    whiteCount++;
+                }
+                else if (_pieceColor[i, j] == PieceColor.Black)
+                {
+                    blackCount++;
+                }
             }
         }
-        else if(!CanPlacePiece(pieceColor))
+
+        // 駒の数で勝者を判定
+        if (whiteCount > blackCount)
         {
-            TrunSkipAnim trunSkipAnim = FindObjectOfType<TrunSkipAnim>();
-            if(trunSkipAnim != null)
+            return PieceColor.White;
+        }
+        else if (blackCount > whiteCount)
+        {
+            return PieceColor.Black;
+        }
+        else
+        {
+            return PieceColor.Empty; // 引き分けの場合
+        }
+    }
+    public void TurnChange() //AIと手番の切り替え
+    {
+        if (GameSet())
+        {
+            PieceColor winner = GetWinner();
+            if(winner == PieceColor.Empty)
             {
-                trunSkipAnim.SkipAnim();
+                Debug.Log("引き分け");
+            }
+            else
+            {
+                Debug.Log(winner + "の勝利！");
+            }
+        }
+        else
+        {
+            CountReturn();
+            BordMemory();
+            PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
+            if (CanPlacePiece(pieceColor))
+            {
+                _trunChange = !_trunChange;
+            }
+            if (!_trunChange)
+            {
+                AIController aIController = FindObjectOfType<AIController>();
+                if (aIController != null)
+                {
+                    aIController.AITurn();
+                }
+            }
+            else if (!CanPlacePiece(pieceColor))
+            {
+                TrunSkipAnim trunSkipAnim = FindObjectOfType<TrunSkipAnim>();
+                if (trunSkipAnim != null)
+                {
+                    trunSkipAnim.SkipAnim();
+                }
             }
         }
     }
