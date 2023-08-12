@@ -37,18 +37,18 @@ public class AIController : MonoBehaviour
         }
     }
 
-    public int CountPieces(int row,int column,PieceColor pieceColor)
+    public int CountPieces(int row, int column, PieceColor pieceColor)
     {
         int pieceCount = 0;
         _boardController = FindObjectOfType<BoardController>();
-        for(int i = 0; i < _boardController._dx.Length; i++)
+        for (int i = 0; i < _boardController._dx.Length; i++)
         {
             int count = 0;
-            if(_boardController.CheckInDirection(row,column,_boardController._dx[i],_boardController._dy[i],pieceColor))
+            if (_boardController.CheckInDirection(row, column, _boardController._dx[i], _boardController._dy[i], pieceColor))
             {
                 count = _boardController._eightCheckCount;
 
-                for(int j = 0; j < count; j++)
+                for (int j = 0; j < count; j++)
                 {
                     pieceCount++;
                 }

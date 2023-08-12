@@ -32,6 +32,8 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
 
 
     public List<PieceColor[,]> pieceColorList = new List<PieceColor[,]>();
+
+    public int _turnCount; //åªç›âΩéËñ⁄Ç©
     public bool PlayerTurn
     {
         get { return _trunChange; }
@@ -39,7 +41,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     // Start is called before the first frame update
     void Start()
     {
-        _gameManager = GameObject.FindAnyObjectByType<GameManager>();
+        _gameManager = FindAnyObjectByType<GameManager>();
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         _gridLayoutGroup.constraintCount = _columns;
         _bords = new GameObject[_rows, _columns];
@@ -187,7 +189,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 }
             }
         }
-        _gameManager.Situation(whiteCount, blackCount);
+        _gameManager.Situation(whiteCount, blackCount,_turnCount);
     }
     public void InstancePiece(int row, int column)Å@//ãÓÇÃê∂ê¨
     {
@@ -285,7 +287,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         if (GameSet())
         {
             PieceColor winner = GetWinner();
-            if(winner == PieceColor.Empty)
+            if (winner == PieceColor.Empty)
             {
                 Debug.Log("à¯Ç´ï™ÇØ");
             }
@@ -296,12 +298,22 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         else
         {
+            _turnCount++;
             CountReturn();
             BordMemory();
-            PieceColor pieceColor = _trunChange ? PieceColor.White : PieceColor.Black;
+            PieceColor pieceColor = _trunChange ? PieceColor.Black : PieceColor.White;
+            Debug.Log($"{pieceColor}ÇÃÉ^Å[Éì");
             if (CanPlacePiece(pieceColor))
             {
                 _trunChange = !_trunChange;
+            }
+            else
+            {
+                TrunSkipAnim trunSkipAnim = FindObjectOfType<TrunSkipAnim>();
+                if (trunSkipAnim != null)
+                {
+                    trunSkipAnim.SkipAnim();
+                }
             }
             if (!_trunChange)
             {
@@ -309,14 +321,6 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 if (aIController != null)
                 {
                     aIController.AITurn();
-                }
-            }
-            else if (!CanPlacePiece(pieceColor))
-            {
-                TrunSkipAnim trunSkipAnim = FindObjectOfType<TrunSkipAnim>();
-                if (trunSkipAnim != null)
-                {
-                    trunSkipAnim.SkipAnim();
                 }
             }
         }
