@@ -34,6 +34,10 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     public List<PieceColor[,]> pieceColorList = new List<PieceColor[,]>();
 
     public int _turnCount; //現在何手目か
+
+    [SerializeField,Header("持ち時間")] public float _timeUp; //持ち時間
+    [SerializeField] public float _nowTime; //時間の計測
+
     public bool PlayerTurn
     {
         get { return _trunChange; }
@@ -69,7 +73,32 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             }
         }
         CountReturn();
+        BordSave();
     }
+    private void Update()
+    {
+        if (_timeUp > 0)
+        {
+            _nowTime += Time.deltaTime;
+            if (_nowTime >= 1)
+            {
+                _timeUp -= 1; // 1秒減少
+                Debug.Log(_timeUp);
+                if (_timeUp <= 0)
+                {
+                    TurnChange();
+                    _nowTime = 0;
+                    _timeUp = 10;
+                }
+                else
+                {
+                    _nowTime = 0;
+                }
+            }
+        }
+        _gameManager.TimeText(_timeUp);
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         var target = eventData.pointerCurrentRaycast.gameObject;
@@ -209,6 +238,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 _pieceColor[row, column] = PieceColor.Black;
                 FlipPieces(row, column, pieceColor);
             }
+            _turnCount++;
             StartCoroutine("TurnChanges");
         }
     }
@@ -226,7 +256,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         return false;
     }
-    private void BordMemory() //盤面の保存
+    private void BordSave() //盤面の保存
     {
         PieceColor[,] currentBoardState = new PieceColor[_rows, _columns];
 
@@ -238,6 +268,10 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             }
         }
         pieceColorList.Add(currentBoardState);
+    }
+    private void BordLord() //ボタン押されたときに呼ぶ(ロード)
+    {
+
     }
     public bool GameSet() //駒が置けるかどうかの確認
     {
@@ -298,11 +332,13 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            _turnCount++;
             CountReturn();
-            BordMemory();
+            BordSave();
             PieceColor pieceColor = _trunChange ? PieceColor.Black : PieceColor.White;
             Debug.Log($"{pieceColor}のターン");
+            _nowTime = 0;
+            _timeUp = 10;
+            _gameManager.TimeText(_timeUp);
             if (CanPlacePiece(pieceColor))
             {
                 _trunChange = !_trunChange;
