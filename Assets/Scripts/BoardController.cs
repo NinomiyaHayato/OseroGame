@@ -31,12 +31,16 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     public int[] _dy = { 1, 0, -1, 1, -1, 1, 0, -1 }; //八方向チェック
 
 
-    public List<PieceColor[,]> pieceColorList = new List<PieceColor[,]>();
+    public List<PieceColor[,]> _pieceColorList = new List<PieceColor[,]>();
 
     public int _turnCount; //現在何手目か
+    public int _gameRecordCount; //棋譜表示時に利用するカウント
 
-    [SerializeField,Header("持ち時間")] public float _timeUp; //持ち時間
+    [SerializeField, Header("持ち時間")] public float _timeUp; //持ち時間
     [SerializeField] public float _nowTime; //時間の計測
+
+    [SerializeField] public bool _timeStop; //一時停止のためのフラグ
+    [SerializeField] public bool _clickStop; //クリックできるか否かのフラグ
 
     public bool PlayerTurn
     {
@@ -45,12 +49,11 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     // Start is called before the first frame update
     void Start()
     {
-        _gameManager = FindAnyObjectByType<GameManager>();
+        _gameManager = FindObjectOfType<GameManager>();
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         _gridLayoutGroup.constraintCount = _columns;
         _bords = new GameObject[_rows, _columns];
         _pieceColor = new PieceColor[_rows, _columns];
-        var parent = _gridLayoutGroup.transform;
         for (int i = 0; i < _rows; i++)
         {
             for (int j = 0; j < _columns; j++)
@@ -79,32 +82,39 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     {
         if (_timeUp > 0)
         {
-            _nowTime += Time.deltaTime;
-            if (_nowTime >= 1)
+            if (!_timeStop)
             {
-                _timeUp -= 1; // 1秒減少
-                Debug.Log(_timeUp);
-                if (_timeUp <= 0)
+                _nowTime += Time.deltaTime;
+                if (_nowTime >= 1)
                 {
-                    TurnChange();
-                    _nowTime = 0;
-                    _timeUp = 10;
-                }
-                else
-                {
-                    _nowTime = 0;
+                    _timeUp -= 1; // 1秒減少
+                    Debug.Log(_timeUp);
+                    if (_timeUp <= 0)
+                    {
+                        TurnChange();
+                        _nowTime = 0;
+                        _timeUp = 10;
+                    }
+                    else
+                    {
+                        _nowTime = 0;
+                    }
                 }
             }
+
         }
         _gameManager.TimeText(_timeUp);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        var target = eventData.pointerCurrentRaycast.gameObject;
-        if (ClickCheck(target, out var row, out var column))
+        if (!_clickStop)
         {
-            InstancePiece(row, column);
+            var target = eventData.pointerCurrentRaycast.gameObject;
+            if (ClickCheck(target, out var row, out var column))
+            {
+                InstancePiece(row, column);
+            }
         }
     }
     public bool ClickCheck(GameObject piece, out int row, out int column)
@@ -218,7 +228,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 }
             }
         }
-        _gameManager.Situation(whiteCount, blackCount,_turnCount);
+        _gameManager.Situation(whiteCount, blackCount, _turnCount);
     }
     public void InstancePiece(int row, int column)　//駒の生成
     {
@@ -267,10 +277,40 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 currentBoardState[i, j] = _pieceColor[i, j];
             }
         }
-        pieceColorList.Add(currentBoardState);
+        _pieceColorList.Add(currentBoardState);
     }
     private void BordLord() //ボタン押されたときに呼ぶ(ロード)
     {
+        _timeStop = true; //経過時間を止める
+        _clickStop = true; //クリックを止める
+        _gameRecordCount = _turnCount;
+    }
+    public void BordLordInstance(int num) //棋譜
+    {
+        if (num >= 0 && num < _pieceColorList.Count - 1)
+        {
+            for (int i = 0; i < _rows; i++)
+            {
+                for (int j = 0; j < _columns; j++)
+                {
+                    if (_bords[i, j].gameObject.transform.childCount > 0)
+                    {
+                        Destroy(_bords[i, j].transform.GetChild(0));
+                    }
+                }
+            }
+            _pieceColor = _pieceColorList[_gameRecordCount];
+            for(int i = 0; i < _rows; i++)
+            {
+                for(int j = 0; j < _columns; j++)
+                {
+                    if(_pieceColor[i,j] == PieceColor.White)
+                    {
+
+                    }
+                }
+            }
+        }
 
     }
     public bool GameSet() //駒が置けるかどうかの確認
