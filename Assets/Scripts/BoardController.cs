@@ -39,8 +39,9 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     [SerializeField, Header("持ち時間")] public float _timeUp; //持ち時間
     [SerializeField] public float _nowTime; //時間の計測
 
-    [SerializeField] public bool _timeStop; //一時停止のためのフラグ
-    [SerializeField] public bool _clickStop; //クリックできるか否かのフラグ
+    [SerializeField] bool _timeStop; //一時停止のためのフラグ
+    [SerializeField] bool _clickStop; //クリックできるか否かのフラグ
+    [SerializeField]public bool _lordCheck; //棋譜の状態なのかどうか
 
     public bool PlayerTurn
     {
@@ -88,7 +89,6 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
                 if (_nowTime >= 1)
                 {
                     _timeUp -= 1; // 1秒減少
-                    Debug.Log(_timeUp);
                     if (_timeUp <= 0)
                     {
                         TurnChange();
@@ -279,39 +279,73 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         }
         _pieceColorList.Add(currentBoardState);
     }
-    private void BordLord() //ボタン押されたときに呼ぶ(ロード)
+    public void BordLord() //ボタン押されたときに呼ぶ(ロード)
     {
-        _timeStop = true; //経過時間を止める
-        _clickStop = true; //クリックを止める
-        _gameRecordCount = _turnCount;
-    }
-    public void BordLordInstance(int num) //棋譜
-    {
-        if (num >= 0 && num < _pieceColorList.Count - 1)
+        _lordCheck = !_lordCheck;
+        if (_lordCheck)
         {
-            for (int i = 0; i < _rows; i++)
+            _timeStop = true; //経過時間を止める
+            _clickStop = true; //クリックを止める
+            _gameRecordCount = _turnCount;
+            _gameManager.RecordCount(_gameRecordCount);
+            _gameManager._recordCountText.enabled = true;
+        }
+        else
+        {
+            BordLordInstance(_turnCount);
+            _gameManager._recordCountText.enabled = false;
+            _timeStop = false; //経過時間を再開
+            _clickStop = false; //クリックを再開
+        }
+    }
+    public void BordLordInstance(int num) //棋譜の生成
+    {
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _columns; j++)
             {
-                for (int j = 0; j < _columns; j++)
+                if (_bords[i, j].gameObject.transform.childCount > 0)
                 {
-                    if (_bords[i, j].gameObject.transform.childCount > 0)
-                    {
-                        Destroy(_bords[i, j].transform.GetChild(0));
-                    }
-                }
-            }
-            _pieceColor = _pieceColorList[_gameRecordCount];
-            for(int i = 0; i < _rows; i++)
-            {
-                for(int j = 0; j < _columns; j++)
-                {
-                    if(_pieceColor[i,j] == PieceColor.White)
-                    {
-
-                    }
+                    Transform child = _bords[i, j].transform.GetChild(0);
+                    Destroy(child.gameObject);
                 }
             }
         }
-
+        var recordData = _pieceColorList[num];
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _columns; j++)
+            {
+                if (recordData[i, j] == PieceColor.White)
+                {
+                    var piece = Instantiate(_piece, _bords[i, j].transform);
+                    piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+                }
+                else if (recordData[i, j] == PieceColor.Black)
+                {
+                    var piece = Instantiate(_piece, _bords[i, j].transform);
+                    piece.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                }
+            }
+        }
+    }
+    public void RightPlus()//棋譜のターンプラス
+    {
+        if (_gameRecordCount < _turnCount && _lordCheck)
+        {
+            _gameRecordCount++;
+            BordLordInstance(_gameRecordCount);
+            _gameManager.RecordCount(_gameRecordCount);
+        }
+    }
+    public void LeftMinus()//棋譜のターンマイナス
+    {
+        if (_gameRecordCount > 0 && _lordCheck)
+        {
+            _gameRecordCount--;
+            BordLordInstance(_gameRecordCount);
+            _gameManager.RecordCount(_gameRecordCount);
+        }
     }
     public bool GameSet() //駒が置けるかどうかの確認
     {
