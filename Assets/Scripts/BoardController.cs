@@ -347,6 +347,14 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             _gameManager.RecordCount(_gameRecordCount);
         }
     }
+    public void InputNumber() //Šû•ˆ‚ğinputField‚©‚çÄŒ»
+    {
+        if(_lordCheck)
+        {
+            var nowStr = _gameManager._chr;
+            int[,] nums = new int[_rows, _columns];
+        }
+    }
     public bool GameSet() //‹î‚ª’u‚¯‚é‚©‚Ç‚¤‚©‚ÌŠm”F
     {
         if (CanPlacePiece(PieceColor.White) || CanPlacePiece(PieceColor.Black))

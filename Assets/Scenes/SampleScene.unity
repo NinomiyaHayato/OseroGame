@@ -452,7 +452,7 @@ MonoBehaviour:
   _timeText: {fileID: 1244897992}
   _recordCountText: {fileID: 1006585188}
   _copyCount: {fileID: 0}
-  _inputField: {fileID: 0}
+  _inputField: {fileID: 923337402}
 --- !u!4 &203889640
 Transform:
   m_ObjectHideFlags: 0
@@ -1410,13 +1410,13 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 923337403}
   m_TextComponent: {fileID: 427857651}
   m_Placeholder: {fileID: 337082530}
-  m_ContentType: 0
+  m_ContentType: 2
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 0
+  m_KeyboardType: 4
   m_LineType: 0
   m_HideMobileInput: 0
-  m_CharacterValidation: 0
+  m_CharacterValidation: 1
   m_CharacterLimit: 0
   m_OnSubmit:
     m_PersistentCalls:
@@ -1424,9 +1424,9 @@ MonoBehaviour:
   m_OnDidEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 203889639}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GetInputNumber
+      - m_Target: {fileID: 1999734364}
+        m_TargetAssemblyTypeName: BoardController, Assembly-CSharp
+        m_MethodName: InputNumber
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
