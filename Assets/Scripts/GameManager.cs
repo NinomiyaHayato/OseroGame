@@ -58,6 +58,31 @@ public class GameManager : MonoBehaviour
             GUIUtility.systemCopyBuffer = string.Join("", _chr.Select(num => num.ToString()));
         }
     }
+    public char[,] ReturnNums()
+    {
+        var nums = _inputField.text;
+        char[,] twoDimensionalArray = new char[8, 8];
+        int index = 0;
+        if (nums.Length == 64)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (index < nums.Length)
+                    {
+                        twoDimensionalArray[i, j] = nums[index];
+                        index++;
+                    }
+                    else
+                    {
+                        twoDimensionalArray[i, j] = '3';
+                    }
+                }
+            }
+        }
+        return twoDimensionalArray;
+    }
     public void TimeText(float time)
     {
         _timeText.text = $"Ž‚¿ŽžŠÔ:{time.ToString("00")}•b";

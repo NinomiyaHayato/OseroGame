@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Linq;
 
 public class BoardController : MonoBehaviour, IPointerClickHandler
 {
@@ -349,10 +350,48 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     }
     public void InputNumber() //棋譜をinputFieldから再現
     {
-        if(_lordCheck)
+        if(_lordCheck && _gameManager.ReturnNums().Length == 64)
         {
-            var nowStr = _gameManager._chr;
-            int[,] nums = new int[_rows, _columns];
+            var data = _gameManager.ReturnNums();
+            for (int i = 0; i < _rows; i++)
+            {
+                for (int j = 0; j < _columns; j++)
+                {
+                    if (_bords[i, j].gameObject.transform.childCount > 0)
+                    {
+                        Transform child = _bords[i, j].transform.GetChild(0);
+                        Destroy(child.gameObject);
+                    }
+                }
+            }
+            PieceColor[,] pieceColors = new PieceColor[_rows, _columns];
+            for (int i = 0; i < _rows; i++)
+            {
+                for(int j = 0; j < _columns; j++)
+                {
+                    if(data[i,j] == '1')
+                    {
+                        var piece = Instantiate(_piece, _bords[i, j].transform);
+                        piece.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+                        pieceColors[i, j] = PieceColor.White;
+                    }
+                    else if(data[i,j] == '2')
+                    {
+                        var piece = Instantiate(_piece, _bords[i, j].transform);
+                        piece.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                        pieceColors[i, j] = PieceColor.Black;
+                    }
+                    else if(data[i,j] == '0')
+                    {
+                        pieceColors[i, j] = PieceColor.Empty;
+                    }
+                }
+            }
+            _lordCheck = !_lordCheck;
+            _pieceColor = pieceColors;
+            _gameManager._recordCountText.enabled = false;
+            _timeStop = false; //経過時間を再開
+            _clickStop = false; //クリックを再開
         }
     }
     public bool GameSet() //駒が置けるかどうかの確認
