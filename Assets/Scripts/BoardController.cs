@@ -44,6 +44,8 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
     [SerializeField] bool _clickStop; //クリックできるか否かのフラグ
     [SerializeField]public bool _lordCheck; //棋譜の状態なのかどうか
 
+    [SerializeField] Text _winnerText;
+
     public bool PlayerTurn
     {
         get { return _trunChange; }
@@ -56,6 +58,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
         _gridLayoutGroup.constraintCount = _columns;
         _bords = new GameObject[_rows, _columns];
         _pieceColor = new PieceColor[_rows, _columns];
+        _winnerText.enabled = false;
         for (int i = 0; i < _rows; i++)
         {
             for (int j = 0; j < _columns; j++)
@@ -444,11 +447,14 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             PieceColor winner = GetWinner();
             if (winner == PieceColor.Empty)
             {
-                Debug.Log("引き分け");
+                _winnerText.text = "引き分け";
+                _winnerText.enabled = true;
             }
             else
             {
                 Debug.Log(winner + "の勝利！");
+                _winnerText.enabled = true;
+                _winnerText.text = $"{winner}の勝利";
             }
         }
         else
