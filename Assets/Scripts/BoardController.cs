@@ -392,6 +392,7 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             }
             _lordCheck = !_lordCheck;
             _pieceColor = pieceColors;
+            BordSave();
             _gameManager._recordCountText.enabled = false;
             _timeStop = false; //経過時間を再開
             _clickStop = false; //クリックを再開
