@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
-using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     [SerializeField, Header("”’‹î‚ÌŒÂ”")] Text _whiteText;
@@ -86,5 +86,9 @@ public class GameManager : MonoBehaviour
     public void TimeText(float time)
     {
         _timeText.text = $"‚¿ŠÔ:{time.ToString("00")}•b";
+    }
+    public void LoadScene(string name)
+    {
+        SceneManager.LoadScene(name);
     }
 }
