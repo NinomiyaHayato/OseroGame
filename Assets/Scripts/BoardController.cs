@@ -450,12 +450,14 @@ public class BoardController : MonoBehaviour, IPointerClickHandler
             {
                 _winnerText.text = "ˆø‚«•ª‚¯";
                 _winnerText.enabled = true;
+                _timeStop = true;
             }
             else
             {
                 Debug.Log(winner + "‚ÌŸ—˜I");
                 _winnerText.enabled = true;
                 _winnerText.text = $"{winner}‚ÌŸ—˜";
+                _timeStop = true;
             }
         }
         else
